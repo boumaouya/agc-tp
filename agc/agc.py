@@ -119,7 +119,12 @@ def cut_kmer(sequence, kmer_size):
 
 
 def get_identity(alignment_list):
-    pass
+    count=0
+    for kpt in range(len(alignment_list[0])):
+        if alignment_list[0][kpt] == alignment_list[1][kpt]: count=count+1
+    id_= count *100 / len(alignment_list[0])
+
+    return id_
 
 def chimera_removal(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
     pass
@@ -127,12 +132,15 @@ def chimera_removal(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
 def abundance_greedy_clustering(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
     pass
 
-def fill(text, width=80):
-    """Split text with a line return to respect fasta format"""
-    return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
-
 def write_OTU(OTU_list, output_file):
-    pass
+    def fill(text, width=80):
+        """Split text with a line return to respect fasta format"""
+        return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
+    # Ecrire dans le fichier
+    with open(output_file, "wt") as f:
+        for k,contigs in enumerate(OTU_list):
+            f.write(f">OTU_{k+1} occurrence:{contigs[1]}\n" + fill(contigs[0], width=80) + "\n")
+
 #==============================================================
 # Main program
 #==============================================================
