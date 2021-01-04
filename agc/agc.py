@@ -19,17 +19,19 @@ import os
 import gzip
 import statistics
 from collections import Counter
+from operator import itemgetter
+
 # https://github.com/briney/nwalign3
 # ftp://ftp.ncbi.nih.gov/blast/matrices/
 import nwalign3 as nw
 
-__author__ = "Your Name"
-__copyright__ = "Universite Paris Diderot"
-__credits__ = ["Your Name"]
+__author__ = "Maouya Bou"
+__copyright__ = "EISTI / CY Tech"
+__credits__ = ["Maouya Bou"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Your Name"
-__email__ = "your@email.fr"
+__maintainer__ = "Maouya Bou"
+__email__ = "boumaouya@eisti.eu"
 __status__ = "Developpement"
 
 
@@ -70,15 +72,36 @@ def get_arguments():
     return parser.parse_args()
 
 def read_fasta(amplicon_file, minseqlen):
-    pass
-
+    if (isfile(amplicon_file)):
+        with gzip.open(amplicon_file, "rt") as fpt:
+            #next_line = 0
+            contig =''
+            for apt in fpt:
+                if len(apt.strip())==0 or apt[0]=='>' :
+                    if len(contig)>=1:
+                        if len(contig) >= minseqlen:
+                            yield contig
+                        contig =''
+                else:
+                    contig = contig + apt.strip()
 
 def dereplication_fulllength(amplicon_file, minseqlen, mincount):
-    pass
+    sequences = list(read_fasta(amplicon_file, minseqlen))
 
+    liste = Counter(sequences).most_common()
 
+    for sequence in liste:
+        if sequence[1]>=mincount:
+            yield sequence
+        
 def get_chunks(sequence, chunk_size):
-    pass
+    liste_segment = []
+    cpt = 0
+    for i in range(4):
+        liste_segment.append(sequence[cpt:cpt+chunk_size])
+        cpt = cpt+chunk_size
+
+    return liste_segment
 
 def get_unique(ids):
     return {}.fromkeys(ids).keys()
@@ -88,7 +111,12 @@ def common(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
 def cut_kmer(sequence, kmer_size):
-    pass
+
+    for i, chaine in enumerate(sequence):
+        if(len(sequence)-i >= kmer_size):  
+            seq = sequence[i:i+kmer_size]
+            yield seq
+
 
 def get_identity(alignment_list):
     pass
