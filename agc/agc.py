@@ -217,14 +217,15 @@ def abundance_greedy_clustering(amplicon_file, minseqlen, mincount, chunk_size, 
         liste.append(apt)
     return liste
 
+def fill(text, width=80):
+    """Split text with a line return to respect fasta format"""
+    return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
+
 def write_OTU(OTU_list, output_file):
     """Prend une liste d’OTU et le chemin vers un fichier de sortie et affiche les OTU au format:
     >OTU_{numéro partant de 1} occurrence:{nombre d’occurrence à la déréplication}
     {séquence au format fasta}
     """
-    def fill(text, width=80):
-        """Split text with a line return to respect fasta format"""
-        return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
     # Ecrire dans le fichier
     with open(output_file, "wt") as fi:
         for k,contigs in enumerate(OTU_list):
@@ -240,6 +241,15 @@ def main():
     # Get arguments
     args = get_arguments()
 
+    amplicon_file = args.amplicon_file
+    minseqlen = args.minseqlen
+    mincount = args.mincount
+    chunk_size = args.chunk_size
+    kmer_size = args.kmer_size
+    output_file = args.output_file
+
+    OTU_list = abundance_greedy_clustering(amplicon_file, minseqlen, mincount, chunk_size, kmer_size)
+    write_OTU(OTU_list, output_file)
 
 if __name__ == '__main__':
     main()
