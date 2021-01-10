@@ -126,6 +126,50 @@ def get_identity(alignment_list):
 
     return id_
 
+def get_unique_kmer(kmer_dict, sequence, id_seq, kmer_size):
+
+    kmer_list = list(cut_kmer(sequence, kmer_size))
+
+    for kmer in kmer_list:
+        if kmer in kmer_dict:
+            kmer_dict["kmer"].append(id_seq)
+        else:
+            kmer_dict["kmer"] = [id_seq]
+
+    return kmer_dict
+
+def search_mates(kmer_dict, sequence, kmer_size):
+
+    liste_ids = []
+    liste_seq=[]
+    kmers=list(cut_kmer(sequence, kmer_size))
+
+    for kmer in kmers:
+        if kmer in kmer_dict:
+            for ipt in kmer_dict[kmer]:
+                liste_ids.append(ipt)
+    
+    for apt in Counter(liste_ids).most_common(8):
+        liste_seq.append(apt[0])
+    return liste_seq
+
+def detect_chimera(perc_identity_matrix):
+
+    ecarts_types = []
+    sequence1 = False
+    sequence2 = False
+
+    for apt in perc_identity_matrix:
+        ecarts_types.append(statistics.stdev(apt))
+        if apt[0] > apt[1]:
+            sequence1 = True
+        if apt[0] < apt[1]:
+            sequence2 = True
+        if statistics.mean(ecarts_types) > 5 and sequence1 and sequence2:
+            return True
+        else:
+            return False
+
 def chimera_removal(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
     pass
 
