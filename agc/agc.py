@@ -23,7 +23,7 @@ from collections import Counter
 
 # https://github.com/briney/nwalign3
 # ftp://ftp.ncbi.nih.gov/blast/matrices/
-#import nwalign3 as nw
+import nwalign3 as nw
 
 __author__ = "Maouya Bou"
 __copyright__ = "EISTI / CY Tech"
@@ -193,10 +193,29 @@ def detect_chimera(perc_identity_matrix):
         return False
 
 def chimera_removal(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
-    pass
+    """Fait appel au générateur fourni par ​ dereplication_fulllength et retourne un générateur des
+    séquences non chimérique au format: yield [sequence, count]
+    """
+    #### Cette fonction n'est pas compléte ##########
+    kmer_dict = {}
+    sequences = list(dereplication_fulllength(amplicon_file, minseqlen, mincount))
+
+    for sequence in sequences:
+        chunk_list = get_chunks(sequence[0], chunk_size)
+        mates_list = []
+        for chunk in chunk_list:
+            mates_list.append(search_mates(kmer_dict, chunk, kmer_size))
+
+        yield sequence
 
 def abundance_greedy_clustering(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
-    pass
+    """Fait appel à chimera removal et retourne une liste d’OTU, cette liste indiquera pour chaque
+    séquence son occurrence (count).
+    """
+    liste=[]
+    for apt in chimera_removal(amplicon_file, minseqlen, mincount, chunk_size, kmer_size):
+        liste.append(apt)
+    return liste
 
 def write_OTU(OTU_list, output_file):
     """Prend une liste d’OTU et le chemin vers un fichier de sortie et affiche les OTU au format:
